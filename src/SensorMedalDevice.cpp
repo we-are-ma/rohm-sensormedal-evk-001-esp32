@@ -75,14 +75,6 @@ bool SensorMedalDevice::connect(){
     Serial.println("- Found our characteristic");
     Serial.println(pRemoteCharacteristic->toString().c_str());
 
-    //CCCD(Client Characteristic Configuration Descriptor)
-    BLERemoteDescriptor *p2902 = pRemoteCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902));
-    if (p2902 == nullptr) {
-      Serial.print("Failed to find our descriptor");
-      return false;
-    }
-    Serial.println("- Found our descriptor");
-
     //センサーデータが更新されると呼び出される
     auto notifyCallback = [&](
 			BLERemoteCharacteristic* pBLERemoteCharacteristic,
@@ -99,8 +91,15 @@ bool SensorMedalDevice::connect(){
             };
     pRemoteCharacteristic->registerForNotify(notifyCallback);
 
-    //const uint8_t v[]={0x1,0x1};
-    //p2902->writeValue((uint8_t*)v,2,true);
+    //CCCD(Client Characteristic Configuration Descriptor)
+    BLERemoteDescriptor *p2902 = pRemoteCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902));
+    if (p2902 == nullptr) {
+      Serial.print("Failed to find our descriptor");
+      return false;
+    }
+    Serial.println("- Found our descriptor");
+    const uint8_t v[]={0x1,0x0};
+    p2902->writeValue((uint8_t*)v,2,true);
 }
 
 void SensorMedalDevice::loop(){
